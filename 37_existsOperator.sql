@@ -1,28 +1,35 @@
--- select employees whose salary is above average in their office
-SELECT * from employees where salary>(
-SELECT AVG(salary)
-FROM employees);
-
--- for each employee
--- 		calculate the average salary for employee.office
--- 		return the employee if salary > avg
-
-SELECT *
-FROM employees e 
-WHERE salary >(
-	SELECT AVG(salary)
-	FROM employees
-    WHERE office_id = e.office_id
-);
-
-
--- get the invoices that are larger than the 
--- clients average invoice amount 
+-- select the clients that have an invoice
+select distinct (client_id) 
+from clients c
+join invoices i
+	using (client_id)
+where invoice_id is not null;
 
 select *
-from invoices i
-where invoice_total>(
-	SELECT AVG(invoice_total)
-    from invoices 
-    where client_id = i.client_id
+from clients
+where client_id in (
+	select distinct client_id
+    from invoices
 );
+
+
+-- using the exist operatot
+
+select *
+from clients c
+where exists(
+	select client_id
+    from invoices
+    where client_id = c.client_id
+);
+
+-- find the products that have never been ordered
+USE sql_store;
+
+select name
+from products p
+where not exists(
+	select product_id
+    from order_items
+    where p.product_id=order_items.product_id
+); 
